@@ -5,30 +5,39 @@ admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 })
 
-var db = admin.firestore()
+//TODO: anden placering af database
+module.exports=db = admin.firestore()
 
-function addUser(db, id, first, last, born){
+const express = require('express')
+const app = express()
+app.set('view engine', 'pug')
 
-    var docRef = db.collection('users').doc(id)
-    
-    var setAda = docRef.set({
-        first: first,
-        last: last,
-        born: born
-    })
-}
+const bodyparser = require('body-parser')
+app.use(bodyparser.urlencoded({extended:false}))
 
-function getData(db){
-    db.collection('users').get()
-    .then((snapshot) => {
-        snapshot.forEach((doc) => {
-            console.log(doc.id, '=>', doc.data())
-        })
-    })
-    .catch((err) =>{
-        console.log('Error getting documents', err)
-    })
-}
+const session = require('express-session')
+app.use(session({secret: "fbui", saveUninitialized: true, resave: true}))
 
-//addUser(db, 'Cmoelvad', 'Christian', 'Moelvad', 1500)
-getData(db)
+const rootRoute = require('./routes/rootRoute')(express)
+const loginRoute = require('./routes/loginRoute')(express)
+const chatRoute = require('./routes/chatRoute')(express)
+
+app.use((req, res, next)=>{
+    if(req.session.username != null){
+        next()
+    }
+    else if(req.path !=='/login'){
+        res.redirect('/login')
+    }
+    else{
+        next()
+    }
+})
+
+app.use('/', rootRoute)
+app.use('/login', loginRoute)
+app.use('/chat', chatRoute)
+
+app.listen(9000, ()=>{
+    console.log('running on port 9000')
+})

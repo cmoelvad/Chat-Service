@@ -1,0 +1,9 @@
+mixin chat(list)
+    table
+        tr
+            th user
+            th message
+            each element in list
+                tr
+                    td= element.user
+                    td= element.message
