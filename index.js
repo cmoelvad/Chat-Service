@@ -1,13 +1,3 @@
-const admin = require('firebase-admin')
-var serviceAccount = require('C:\\Users\\Chrel\\Documents\\Git Repository\\Chat Service\\Chat service-7726558d7407.json')
-
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
-})
-
-//TODO: anden placering af database
-module.exports=db = admin.firestore()
-
 const express = require('express')
 const app = express()
 app.set('view engine', 'pug')

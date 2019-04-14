@@ -1,25 +1,28 @@
-exports.addMessage = function(db, ){
+const db = require('../firestoreSetup')
+const createMessage = require('../models/chatmessageModel')
+require('es6-promise').polyfill()
+require('isomorphic-fetch')
 
-    // TODO: Ny datastruktur så det passer med en liste istedet for en map
-    var docRef = db.collection('users').doc(id)
-    
-    var setAda = docRef.set({
-        first: first,
-        last: last,
-        born: born
+exports.addMessage = function(user, message){
+    db.collection('messages').add({
+        user: user,
+        message: message
+    }).then(ref =>{
+        console.log("Added document with ID: ", ref.id)
     })
 }
 
-exports.getUsers = function(db){
-    let users = new Map()
-    db.collection('users').get()
-    .then((snapshot) => {
-        snapshot.forEach((doc) => {
-            users.set(doc.id, doc.data())
+exports.getmessages = function(){
+    let messages = []
+    db.collection('messages').get()
+    .then((snapshot)=>{
+        snapshot.forEach((doc)=>{
+            console.log('doc.data: ', doc.data())
+            messages.push(createMessage(doc.data().user, doc.data().message))
         })
     })
-    .catch((err) =>{
-        console.log('Error getting documents', err)
+    .then(()=>{
+        console.log("messages.data: ", messages)
+        return [1,2]
     })
-    return users
 }
