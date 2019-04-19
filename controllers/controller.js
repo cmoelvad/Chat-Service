@@ -1,28 +1,33 @@
 const db = require('../firestoreSetup')
-const createMessage = require('../models/chatmessageModel')
-require('es6-promise').polyfill()
+const functions = require('firebase-functions')
+
 require('isomorphic-fetch')
 
-exports.addMessage = function(user, message){
-    db.collection('messages').add({
-        user: user,
-        message: message
-    }).then(ref =>{
-        console.log("Added document with ID: ", ref.id)
+exports.addMessage = async function(user, message){
+    getMessageNumber()
+    .then((snapshot)=>{
+        let messageID = null
+        snapshot.forEach((doc)=>{
+            messageID = doc.data().number
+        })
+        return db.collection('messages').doc('\''+messageID+'\'').set({
+            user: user,
+            message: message
+        })
+        .then(()=>{
+            db.collection('messageNumber').doc('messagenumber').set({
+                number: messageID += 1
+            })
+        })
     })
 }
 
-exports.getmessages = function(){
-    let messages = []
-    db.collection('messages').get()
-    .then((snapshot)=>{
-        snapshot.forEach((doc)=>{
-            console.log('doc.data: ', doc.data())
-            messages.push(createMessage(doc.data().user, doc.data().message))
-        })
-    })
-    .then(()=>{
-        console.log("messages.data: ", messages)
-        return [1,2]
-    })
+async function getMessageNumber(){
+     return db.collection('messageNumber').get('messagenumber')
+}
+
+exports.createMessage = functions.firestore.document('messages')
+
+exports.getmessages = async function(){
+    return db.collection('messages').get()
 }

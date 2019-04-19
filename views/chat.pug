@@ -1,16 +1,13 @@
 extends layout
 
 block content
-    list=messages
-    table
-        tr(class='trHeader')
-            th user
-            th message
-            each element in list.l
-                tr(class='trData')
-                    td= element.user
-                    td= element.message
     div
         h1=header
+    include chatMixin
+    +chatMixin(messages)
+    
+    form(method="POST" action="/chat")
+        input(type="text" name="message" placeholder="Message")
+        button(type=submit) Send message
 
         
