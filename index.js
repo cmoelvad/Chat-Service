@@ -1,34 +1,37 @@
-const admin = require('firebase-admin')
-var serviceAccount = require('C:\\Users\\Chrel\\Documents\\Git Repository\\Chat Service\\Chat service-7726558d7407.json')
+const express = require('express')
+const app = express()
+app.set('view engine', 'pug')
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount)
+const bodyparser = require('body-parser')
+app.use(bodyparser.urlencoded({
+    extended: false
+}))
+
+const session = require('express-session')
+app.use(session({
+    secret: "fbui",
+    saveUninitialized: true,
+    resave: true
+}))
+
+const rootRoute = require('./routes/rootRoute')(express)
+const loginRoute = require('./routes/loginRoute')(express)
+const chatRoute = require('./routes/chatRoute')(express)
+
+app.use((req, res, next) => {
+    if (req.session.username != null) {
+        next()
+    } else if (req.path !== '/login') {
+        res.redirect('/login')
+    } else {
+        next()
+    }
 })
 
-var db = admin.firestore()
+app.use('/', rootRoute)
+app.use('/login', loginRoute)
+app.use('/chat', chatRoute)
 
-function addUser(db, id, first, last, born){
-
-    var docRef = db.collection('users').doc(id)
-    
-    var setAda = docRef.set({
-        first: first,
-        last: last,
-        born: born
-    })
-}
-
-function getData(db){
-    db.collection('users').get()
-    .then((snapshot) => {
-        snapshot.forEach((doc) => {
-            console.log(doc.id, '=>', doc.data())
-        })
-    })
-    .catch((err) =>{
-        console.log('Error getting documents', err)
-    })
-}
-
-//addUser(db, 'Cmoelvad', 'Christian', 'Moelvad', 1500)
-getData(db)
+app.listen(9000, () => {
+    console.log('running on port 9000')
+})

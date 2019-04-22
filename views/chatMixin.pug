@@ -1,0 +1,9 @@
+mixin chatMixin(list)
+    table
+        tr(class='trHeader')
+            th user
+            th message
+            each element in list
+                tr(class='trData')
+                    td= element.user
+                    td= element.message

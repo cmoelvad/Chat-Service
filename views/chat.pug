@@ -1,0 +1,13 @@
+extends layout
+
+block content
+    div
+        h1=header
+    include chatMixin
+    +chatMixin(messages)
+    
+    form(method="POST" action="/chat")
+        input(type="text" name="message" placeholder="Message")
+        button(type=submit) Send message
+
+        
