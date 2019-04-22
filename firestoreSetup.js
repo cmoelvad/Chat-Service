@@ -4,4 +4,4 @@ var serviceAccount = require('C:\\Users\\Chrel\\Documents\\Git Repository\\Chat 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount)
 })
-module.exports=admin.firestore()
+module.exports = admin.firestore()
